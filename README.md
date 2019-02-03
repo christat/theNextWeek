@@ -25,3 +25,4 @@ Note that you need `g++`, or another C++ compiler installed in your machine.
 The outcome of each chapter can be seen below:
 
 ![Chapter 1](https://github.com/christat/theNextWeek/blob/master/img/ch_1.jpg)
+![Chapter 3](https://github.com/christat/theNextWeek/blob/master/img/ch_3.jpg)

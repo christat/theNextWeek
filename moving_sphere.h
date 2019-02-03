@@ -12,10 +12,11 @@ class moving_sphere: public hitable  {
         virtual bool bounding_box(float t0, float t1, aabb& box) const;
         vec3 center(float time) const;
         vec3 center0;
+        vec3 center1;
+        float time0;
+        float time1;
         float radius;
         material *mat_ptr;
-        vec3 center1;
-        float time0, time1;
 };
 
 vec3 moving_sphere::center(float time) const {
@@ -57,6 +58,3 @@ bool moving_sphere::bounding_box(float t0, float t1, aabb& box) const {
 }
 
 #endif
-
-
-
