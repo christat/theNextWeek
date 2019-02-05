@@ -3,7 +3,7 @@ Ray Tracing: The Next Week
 
 ## Contents
 
-The sources follow the book in order. Each chapter has a corresponding commit in the git history.
+The sources follow the book in order, minus Perlin Noise (Chapter 4). Each chapter has a corresponding commit in the git history.
 
 ## Compile/run
 
