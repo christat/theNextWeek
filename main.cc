@@ -19,23 +19,25 @@
 #include "texture.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include "rect.h"
 
 vec3 color(const ray& r, hitable *world, int depth) {
     hit_record rec;
     if (world->hit(r, 0.001, MAXFLOAT, rec)) { 
         ray scattered;
         vec3 attenuation;
+        vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
         if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
-             return attenuation*color(scattered, world, depth+1);
-        }
-        else {
-            return vec3(0,0,0);
+             return emitted + attenuation*color(scattered, world, depth+1);
+        } else {
+            return emitted;
         }
     }
     else {
-        vec3 unit_direction = unit_vector(r.direction());
-        float t = 0.5*(unit_direction.y() + 1.0);
-        return (1.0-t)*vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0);
+        //vec3 unit_direction = unit_vector(r.direction());
+        //float t = 0.5*(unit_direction.y() + 1.0);
+        //return (1.0-t)*vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0);
+        return vec3(0,0,0);
     }
 }
 
@@ -72,32 +74,47 @@ hitable *random_scene() {
     return new hitable_list(list,i);
 }
 
-int main() {
-    int nx = 1200;
-    int ny = 800;
-    int ns = 10;
-    std::cout << "P3\n" << nx << " " << ny << "\n255\n";
-    hitable *list[5];
-    //float R = cos(M_PI/4);
+hitable *simple_light() {
     int tx, ty, tn;
     // image courtesy of Tom Patterson, www.shadedrelief.com
     unsigned char *tex_data = stbi_load("img/earth_texture.jpg", &tx, &ty, &tn, 0);
-    material *earth_mat = new lambertian(new image_texture(tex_data, tx, ty));
-    list[0] = new sphere(vec3(0,0,-1), 0.5, earth_mat);
     texture *checker = new checker_texture(new constant_texture(vec3(0.2, 0.2, 0.2)), new constant_texture(vec3(0.9, 0.9, 0.9)));
-    list[1] = new sphere(vec3(0,-100.5,-1), 100, new lambertian(checker));
-    list[2] = new sphere(vec3(1,0,-1), 0.5, new metal(vec3(0.8, 0.6, 0.2), 0.0));
-    list[3] = new sphere(vec3(-1,0,-1), 0.5, new dielectric(1.5));
-    list[4] = new sphere(vec3(-1,0,-1), -0.45, new dielectric(1.5));
-    hitable *world = new hitable_list(list,5);
-    //world = random_scene();
+    hitable** list = new hitable*[4];
+    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(checker));
+    list[1] = new sphere(vec3(0, 2, 0), 2, new lambertian(new image_texture(tex_data, tx, ty)));
+    list[2] = new sphere(vec3(0,7,0), 2, new diffuse_light(new constant_texture(vec3(4,4,3))));
+    list[3] = new xy_rect(3,5,1,3,-2, new diffuse_light(new constant_texture(vec3(4,4,4))));
 
-    vec3 lookfrom(0,2.0,-7.0);
-    vec3 lookat(0,0,0);
-    float dist_to_focus = 7.0;
+    return new hitable_list(list, 4);
+}
+
+int main() {
+    int nx = 1200;
+    int ny = 800;
+    int ns = 100;
+    std::cout << "P3\n" << nx << " " << ny << "\n255\n";
+    //hitable *list[5];
+    //float R = cos(M_PI/4);
+    //int tx, ty, tn;
+    // image courtesy of Tom Patterson, www.shadedrelief.com
+    //unsigned char *tex_data = stbi_load("img/earth_texture.jpg", &tx, &ty, &tn, 0);
+    //material *earth_mat = new lambertian(new image_texture(tex_data, tx, ty));
+    //list[0] = new sphere(vec3(0,0,-1), 0.5, earth_mat);
+    //texture *checker = new checker_texture(new constant_texture(vec3(0.2, 0.2, 0.2)), new constant_texture(vec3(0.9, 0.9, 0.9)));
+    //list[1] = new sphere(vec3(0,-100.5,-1), 100, new lambertian(checker));
+    //list[2] = new sphere(vec3(1,0,-1), 0.5, new metal(vec3(0.8, 0.6, 0.2), 0.0));
+    //list[3] = new sphere(vec3(-1,0,-1), 0.5, new dielectric(1.5));
+    //list[4] = new sphere(vec3(-1,0,-1), -0.45, new dielectric(1.5));
+    //hitable *world = new hitable_list(list,5);
+    //world = random_scene();
+    hitable *world = simple_light();
+
+    vec3 lookfrom(13,4,6);
+    vec3 lookat(2,2,0);
+    float dist_to_focus = 10.0;
     float aperture = 0.0;
 
-    camera cam(lookfrom, lookat, vec3(0,1,0), 20, float(nx)/float(ny), aperture, dist_to_focus, 0.0, 1.0);
+    camera cam(lookfrom, lookat, vec3(0,1,0), 30, float(nx)/float(ny), aperture, dist_to_focus, 0.0, 1.0);
 
     for (int j = ny-1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
