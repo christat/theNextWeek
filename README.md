@@ -28,3 +28,4 @@ The outcome of each chapter can be seen below:
 ![Chapter 3](https://github.com/christat/theNextWeek/blob/master/img/ch_3.jpg)
 ![Chapter 5](https://github.com/christat/theNextWeek/blob/master/img/ch_5.jpg)
 ![Chapter 6 - Lights](https://github.com/christat/theNextWeek/blob/master/img/ch_6_lights.jpg)
+![Chapter 6 - Cornell Box](https://github.com/christat/theNextWeek/blob/master/img/ch_6_cornell.jpg)
